@@ -1,6 +1,8 @@
 {
   "status": "completed",
   "stopped_reason": "converged",
+  "run_id": "20260831T111545Z",
+  "benchmark": "KuaiRand-Pure",
   "baseline_validation": {
     "gauc": 0.6674,
     "ndcg_at_5": 0.5357,
@@ -16,12 +18,12 @@
     "ndcg_at_5": 0.5537968873977661,
     "primary": 0.6298607587814331
   },
-  "best_node_id": "001-child",
-  "iterations": 4,
-  "max_iterations": 5,
-  "wall_clock_seconds": 375.53547658305615,
-  "total_input_tokens": 13901,
-  "total_output_tokens": 2390,
+  "best_node_id": "000-root",
+  "iterations": 3,
+  "max_iterations": 50,
+  "wall_clock_seconds": 305.127656375058,
+  "total_input_tokens": 10307,
+  "total_output_tokens": 2594,
   "manual_interventions": 0,
   "hidden_test_access": false,
   "nodes": [
@@ -32,17 +34,17 @@
       "title": "",
       "hypothesis": "",
       "validation": {
-        "gauc": 0.6998556852340698,
-        "ndcg_at_5": 0.5515121817588806,
-        "primary": 0.6256839036941528
+        "gauc": 0.7059246301651001,
+        "ndcg_at_5": 0.5537968873977661,
+        "primary": 0.6298607587814331
       }
     },
     {
       "node_id": "001-child",
       "parent_id": "000-root",
       "status": "evaluated",
-      "title": "Optimize LambdaRank directly for top five",
-      "hypothesis": "Setting LambdaRank truncation to 5 concentrates pairwise optimization on the evaluated nDCG@5 region, potentially improving the official ranking metric without changing features or labels.",
+      "title": "Use XE-NDCG ranking objective",
+      "hypothesis": "LightGBM rank_xendcg directly optimizes top-ranked gains and may improve the mean of GAUC and nDCG@5 over lambdarank for binary within-user feedback.",
       "validation": {
         "gauc": 0.7059246301651001,
         "ndcg_at_5": 0.5537968873977661,
@@ -51,10 +53,10 @@
     },
     {
       "node_id": "002-child",
-      "parent_id": "001-child",
+      "parent_id": "000-root",
       "status": "evaluated",
-      "title": "Broaden LambdaRank truncation for GAUC balance",
-      "hypothesis": "A truncation level of 10 should retain emphasis on top-five ranking while providing useful gradients for additional within-user positives, potentially improving GAUC without sacrificing nDCG@5.",
+      "title": "Broaden ranking truncation",
+      "hypothesis": "Using a truncation level of 10 instead of 5 should retain top-of-list focus while supplying more pairwise signal for GAUC, potentially improving the mean GAUC and nDCG@5.",
       "validation": {
         "gauc": 0.7010399699211121,
         "ndcg_at_5": 0.5517860054969788,
@@ -63,30 +65,16 @@
     },
     {
       "node_id": "003-child",
-      "parent_id": "001-child",
+      "parent_id": "000-root",
       "status": "evaluated",
-      "title": "Disable query lambda normalization",
-      "hypothesis": "Without per-user lambda normalization, users with more validation impressions contribute proportionally more ranking gradients, better matching impression-weighted GAUC while retaining top-five truncation for nDCG@5.",
+      "title": "Disable query-size lambda normalization",
+      "hypothesis": "LightGBM's default query normalization gives equal gradient weight to users despite GAUC weighting interactions; disabling it may improve the GAUC component while retaining top-5 ranking optimization.",
       "validation": {
         "gauc": 0.7007298469543457,
         "ndcg_at_5": 0.5528445839881897,
         "primary": 0.6267871856689453
       }
-    },
-    {
-      "node_id": "004-child",
-      "parent_id": "001-child",
-      "status": "evaluated",
-      "title": "Use XE_NDCG ranking objective",
-      "hypothesis": "LightGBM's XE_NDCG objective provides a smoother listwise approximation to nDCG than LambdaRank, potentially improving top-five ordering while preserving user-group training.",
-      "validation": {
-        "gauc": 0.6914851665496826,
-        "ndcg_at_5": 0.5470344424247742,
-        "primary": 0.6192598342895508
-      }
     }
   ],
-  "final_submission": "runs/autonomous-pure-final/20260831T092157Z/submission.csv",
-  "run_id": "20260831T092157Z",
-  "benchmark": "KuaiRand-Pure"
+  "final_submission": "runs/autonomous-final-pure/20260831T111545Z/submission.csv"
 }

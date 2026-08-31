@@ -75,10 +75,10 @@ because 27.1% of users have no positive label at all. Read scores against that r
 
 | Measure | Value |
 | :--- | ---: |
-| Iterations used (cap 50) | 4 |
+| Iterations used (cap 50) | 3 |
 | Stop reason | `converged` (ε = 0.002, N = 3) |
-| Agent wall-clock | 6 min 16 s |
-| LLM tokens (input + output) | 13,901 + 2,390 = **16,291** |
+| Agent wall-clock | 5 min 5 s |
+| LLM tokens (input + output) | 10,307 + 2,594 = **12,901** |
 | GPU-hours | 0 (CPU only) |
 | Manual interventions | **0** |
 
@@ -87,13 +87,15 @@ because 27.1% of users have no positive label at all. Read scores against that r
 
 | Metric | Kopibara RLab Agent (validation) |
 | :--- | ---: |
-| GAUC | 0.6853 |
-| nDCG@5 | 0.6166 |
-| Primary | 0.6509 |
+| GAUC | **0.7107** |
+| nDCG@5 | **0.7888** |
+| Primary | **0.7498** |
 
 The starter kit publishes no official baseline for KuaiRand-1K, so no delta is claimed.
-The number is reported as an absolute validation score from the same pipeline, retrained
-on the 1K splits. KuaiRand-27K was not attempted.
+The run's measured FM runtime reference was GAUC 0.6662 / nDCG@5 0.5496 / primary
+0.6079; this is not an organizer-published 1K baseline. The result is an absolute
+validation score from the same pipeline, retrained on the 1K splits. KuaiRand-27K was
+not attempted.
 
 </details>
 
@@ -248,22 +250,19 @@ noise.
 
 ### What the agent actually found
 
-The converged run is four iterations long, and the log reads as a research trace rather
+The converged run is three search iterations long, and the log reads as a research trace rather
 than a hyperparameter sweep.
 
 | Iter | Hypothesis | Validation primary | Kept |
 | :--- | :--- | ---: | :--- |
-| 0 | Seed candidate: lagged multi-feedback history features | 0.6257 | ✓ |
-| 1 | Truncate LambdaRank at 5 to concentrate gradients on the scored region | **0.6299** | ✓ |
+| 0 | Seed candidate: lagged multi-feedback history features | **0.6299** | ✓ |
+| 1 | Swap LambdaRank for the XE-NDCG ranking objective | 0.6299 | ✗ |
 | 2 | Widen truncation to 10 to trade nDCG@5 for GAUC | 0.6264 | ✗ |
 | 3 | Disable per-query lambda normalization to match impression-weighted GAUC | 0.6268 | ✗ |
-| 4 | Swap LambdaRank for the XE_NDCG listwise objective | 0.6193 | ✗ |
 
-Iteration 1 is the improvement that stuck, and it is a metric-alignment argument rather
-than a tuning result: the evaluator scores nDCG@5, so the ranking loss should spend its
-pairwise gradient budget on the top five positions. Iterations 2 through 4 are the agent
-probing that boundary from three directions and finding it holds, which is what triggers
-the convergence rule.
+The seed candidate is the improvement that stuck. The three child trials probe the ranking
+objective and its top-of-list gradient settings; none beats the seed before the organizer's
+convergence rule fires.
 
 ## Leakage control
 
