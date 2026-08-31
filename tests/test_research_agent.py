@@ -7,7 +7,11 @@ import pytest
 from kopibara_agent.models import CodeEdit, Metrics
 from kopibara_agent.planner import apply_code_edits, parse_plan
 from kopibara_agent.research_agent import has_converged, write_dashboard_run
-from kopibara_agent.runner import parse_candidate_metrics, parse_metrics
+from kopibara_agent.runner import (
+    build_candidate_command,
+    parse_candidate_metrics,
+    parse_metrics,
+)
 
 
 def test_parse_metrics_uses_validation_line() -> None:
@@ -68,3 +72,16 @@ def test_write_dashboard_run_publishes_the_manifest(tmp_path: Path) -> None:
 
     assert path == tmp_path / "frontend" / "public" / "run.json"
     assert '"status": "completed"' in path.read_text(encoding="utf-8")
+
+
+def test_candidate_command_leaves_model_options_to_the_candidate(
+    tmp_path: Path,
+) -> None:
+    command = build_candidate_command(
+        tmp_path / "history_lgbm.py",
+        tmp_path / "data",
+        tmp_path / "output",
+    )
+
+    assert "--objective" not in command
+    assert "--feedbacks" not in command

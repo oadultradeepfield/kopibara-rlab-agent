@@ -206,7 +206,11 @@ def initialize_search(
         environment=environment,
     )
     runtime_baseline = parse_metrics(baseline_execution.output)
-    baseline = load_official_baseline(root)
+    baseline = (
+        load_official_baseline(root)
+        if data_directory.parent.name == "KuaiRand-Pure"
+        else runtime_baseline
+    )
     root_directory = node_directory / "000-root"
     root_code = root_directory / CANDIDATE_SCRIPT
     root_output = root_directory / "output"
