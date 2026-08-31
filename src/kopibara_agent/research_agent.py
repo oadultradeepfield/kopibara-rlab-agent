@@ -184,6 +184,26 @@ def parse_metrics(output: str) -> Metrics:
     )
 
 
+def parse_candidate_metrics(output: str, output_directory: Path) -> Metrics:
+    """Parse candidate stdout, falling back to its own metrics artifact."""
+    try:
+        return parse_metrics(output)
+    except ValueError as output_error:
+        metrics_path = output_directory / "metrics.json"
+        try:
+            payload = json.loads(metrics_path.read_text(encoding="utf-8"))
+            valid = payload["valid"]
+            return Metrics(
+                gauc=float(valid["GAUC"]),
+                ndcg_at_5=float(valid["nDCG@5"]),
+                primary=float(valid["primary"]),
+            )
+        except (KeyError, OSError, TypeError, ValueError) as artifact_error:
+            raise ValueError(
+                f"{output_error}; metrics artifact unavailable or invalid"
+            ) from artifact_error
+
+
 def has_converged(
     scores: Sequence[float],
     *,
@@ -522,7 +542,7 @@ def attempt_candidate(
         )
         return CandidateAttempt(
             source,
-            parse_metrics(execution.output),
+            parse_candidate_metrics(execution.output, child_output),
             execution,
             command,
             tuple(recovery_events),
@@ -560,7 +580,7 @@ def attempt_candidate(
         recovery_events.append("candidate repaired and rerun")
         return CandidateAttempt(
             source,
-            parse_metrics(execution.output),
+            parse_candidate_metrics(execution.output, child_output),
             execution,
             command,
             tuple(recovery_events),
@@ -689,7 +709,7 @@ def initialize_search(
         environment=environment,
         timeout_seconds=timeout_seconds,
     )
-    root_metrics = parse_metrics(root_execution.output)
+    root_metrics = parse_candidate_metrics(root_execution.output, root_output)
     root_node = Node("000-root", None, root_code, root_output, root_metrics, "kept", 0)
     best = (
         root_node

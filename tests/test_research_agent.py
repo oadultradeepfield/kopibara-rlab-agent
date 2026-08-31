@@ -1,5 +1,7 @@
 """Tests for the autonomous controller's pure parsing and stopping logic."""
 
+from pathlib import Path
+
 import pytest
 
 from kopibara_agent.research_agent import (
@@ -7,6 +9,7 @@ from kopibara_agent.research_agent import (
     Metrics,
     apply_code_edits,
     has_converged,
+    parse_candidate_metrics,
     parse_metrics,
     parse_plan,
 )
@@ -15,6 +18,16 @@ from kopibara_agent.research_agent import (
 def test_parse_metrics_uses_validation_line() -> None:
     metrics = parse_metrics("valid GAUC 0.6697 nDCG@5 0.5366 primary 0.6031")
     assert metrics == Metrics(0.6697, 0.5366, 0.6031)
+
+
+def test_parse_candidate_metrics_uses_artifact_when_output_is_missing(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "metrics.json").write_text(
+        '{"valid":{"GAUC":0.6999,"nDCG@5":0.5515,"primary":0.6257}}',
+        encoding="utf-8",
+    )
+    assert parse_candidate_metrics("", tmp_path) == Metrics(0.6999, 0.5515, 0.6257)
 
 
 def test_parse_plan_accepts_fenced_json() -> None:
