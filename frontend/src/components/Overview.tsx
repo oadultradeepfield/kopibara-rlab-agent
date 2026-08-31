@@ -26,7 +26,7 @@ export function Overview({ detail }: OverviewProps): ReactElement {
             Results so far
           </h2>
         </div>
-        <p className="font-mono text-xs text-slate-400">
+        <p className="font-mono text-xs text-slate-500">
           {detail.iterations} autonomous iterations
         </p>
       </div>
@@ -56,11 +56,11 @@ export function Overview({ detail }: OverviewProps): ReactElement {
 
       <div className="panel mt-2 p-3">
         <p className="section-kicker">Run evidence</p>
-        <p className="mt-1 max-w-5xl text-sm leading-5 text-slate-200">
+        <p className="mt-1 max-w-5xl text-sm leading-5 text-slate-700">
           The agent searched history-aware LambdaRank variants and retained the checkpoint
           that optimized the evaluated top-five ranking region.
         </p>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/10 pt-2 font-mono text-xs text-slate-400">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 border-t border-slate-200 pt-2 font-mono text-xs text-slate-500">
           <span>Benchmark: {detail.benchmark}</span>
           <span>Runtime: {formatDuration(detail.wallClockSeconds)}</span>
           <span>LLM tokens: {totalTokens.toLocaleString()}</span>
@@ -77,11 +77,11 @@ export function Overview({ detail }: OverviewProps): ReactElement {
 function EvidenceCard({ label, value, detail }: EvidenceCardProps): ReactElement {
   return (
     <article className="evidence-card">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="mt-1 font-mono text-xl font-semibold tracking-tight text-slate-100">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-1 font-mono text-xl font-semibold tracking-tight text-slate-900">
         {value}
       </p>
-      <p className="text-xs text-slate-400">{detail}</p>
+      <p className="text-xs text-slate-500">{detail}</p>
     </article>
   );
 }

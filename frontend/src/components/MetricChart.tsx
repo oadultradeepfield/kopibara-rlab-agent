@@ -37,7 +37,7 @@ export function MetricChart({ points, baseline }: MetricChartProps): ReactElemen
             name: 'Primary score',
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: '#54d2e5', width: 3 },
+            line: { color: '#0284c7', width: 3 },
             marker: { size: 7 },
           },
           {
@@ -46,7 +46,7 @@ export function MetricChart({ points, baseline }: MetricChartProps): ReactElemen
             name: 'GAUC',
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: '#a78bfa', width: 2, dash: 'dot' },
+            line: { color: '#7c3aed', width: 2, dash: 'dot' },
           },
           {
             x: iterations,
@@ -54,7 +54,7 @@ export function MetricChart({ points, baseline }: MetricChartProps): ReactElemen
             name: 'nDCG@5',
             type: 'scatter',
             mode: 'lines+markers',
-            line: { color: '#fbbf24', width: 2 },
+            line: { color: '#d97706', width: 2 },
           },
           {
             x: iterations,
@@ -70,19 +70,19 @@ export function MetricChart({ points, baseline }: MetricChartProps): ReactElemen
           margin: { l: 48, r: 10, t: 14, b: 34 },
           paper_bgcolor: 'rgba(0,0,0,0)',
           plot_bgcolor: 'rgba(0,0,0,0)',
-          font: { color: '#cbd5e1', family: 'IBM Plex Mono, monospace', size: 11 },
+          font: { color: '#475569', family: 'IBM Plex Mono, monospace', size: 11 },
           hovermode: 'x unified',
           legend: { orientation: 'h', y: 1.15, x: 0 },
           xaxis: {
             title: { text: 'Experiment' },
             dtick: 1,
-            gridcolor: 'rgba(148,163,184,0.14)',
+            gridcolor: 'rgba(148,163,184,0.28)',
             zeroline: false,
           },
           yaxis: {
             title: { text: 'Score' },
             tickformat: '.4f',
-            gridcolor: 'rgba(148,163,184,0.14)',
+            gridcolor: 'rgba(148,163,184,0.28)',
             zeroline: false,
           },
         }}

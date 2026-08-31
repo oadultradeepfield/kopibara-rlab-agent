@@ -16,7 +16,7 @@ export function ExperimentTable({
 }: ExperimentTableProps): ReactElement {
   return (
     <section className="panel overflow-hidden" aria-labelledby="experiments-title">
-      <div className="border-b border-white/7 p-3">
+      <div className="border-b border-slate-200 p-3">
         <p className="section-kicker">All experiments</p>
         <h2 id="experiments-title" className="section-title">
           Experiment results
@@ -24,7 +24,7 @@ export function ExperimentTable({
       </div>
       <div className="max-h-[400px] overflow-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-800 text-xs text-slate-400">
+          <thead className="sticky top-0 z-10 bg-slate-100 text-xs text-slate-500">
             <tr>
               <th className="px-3 py-2 font-medium">Experiment</th>
               <th className="px-2 py-2 font-medium">Status</th>
@@ -32,20 +32,20 @@ export function ExperimentTable({
               <th className="px-2 py-2 font-medium">Hypothesis</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/6">
+          <tbody className="divide-y divide-slate-200">
             {experiments.map((experiment) => (
               <tr
                 key={experiment.id}
                 className={
                   selectedExperimentId === experiment.id
-                    ? 'bg-blue-400/5'
-                    : 'hover:bg-white/[0.025]'
+                    ? 'bg-blue-50'
+                    : 'hover:bg-slate-50'
                 }
               >
-                <td className="px-3 py-2 font-mono text-xs text-slate-200">
+                <td className="px-3 py-2 font-mono text-xs text-slate-700">
                   <button
                     type="button"
-                    className="text-left hover:text-blue-300 hover:underline"
+                    className="text-left hover:text-blue-700 hover:underline"
                     aria-pressed={selectedExperimentId === experiment.id}
                     onClick={() => {
                       onSelectExperiment(experiment.id);
@@ -53,7 +53,7 @@ export function ExperimentTable({
                   >
                     {experiment.id}
                   </button>
-                  <p className="mt-1 max-w-56 font-sans text-xs text-slate-400">
+                  <p className="mt-1 max-w-56 font-sans text-xs text-slate-500">
                     {experiment.title}
                   </p>
                 </td>
@@ -62,10 +62,10 @@ export function ExperimentTable({
                     {formatExperimentStatus(experiment.status)}
                   </span>
                 </td>
-                <td className="px-2 py-2 text-right font-mono text-xs text-slate-200">
+                <td className="px-2 py-2 text-right font-mono text-xs text-slate-700">
                   {formatScore(experiment.score.primary)}
                 </td>
-                <td className="max-w-[34rem] px-2 py-2 text-xs leading-5 text-slate-400">
+                <td className="max-w-[34rem] px-2 py-2 text-xs leading-5 text-slate-600">
                   {experiment.hypothesis}
                 </td>
               </tr>

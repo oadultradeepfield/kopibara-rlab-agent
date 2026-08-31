@@ -30,14 +30,14 @@ export function LineageTree({
 }: LineageTreeProps): ReactElement {
   return (
     <section className="panel overflow-hidden" aria-labelledby="lineage-title">
-      <div className="flex items-end justify-between border-b border-white/7 p-3">
+      <div className="flex items-end justify-between border-b border-slate-200 p-3">
         <div>
           <p className="section-kicker">Experiment decisions</p>
           <h2 id="lineage-title" className="section-title">
             How experiments branched
           </h2>
         </div>
-        <span className="font-mono text-xs text-slate-400">
+        <span className="font-mono text-xs text-slate-500">
           {experiments.length} experiments
         </span>
       </div>
@@ -104,13 +104,13 @@ function LineageBranch({
           onSelectExperiment(experimentId);
         }}
       >
-        <span className="truncate font-mono text-xs font-semibold text-slate-200">
+        <span className="truncate font-mono text-xs font-semibold text-slate-700">
           {experimentId ?? 'Baseline'}
         </span>
-        <span className="mt-1 font-mono text-sm text-slate-100">
+        <span className="mt-1 font-mono text-sm text-slate-900">
           {formatScore(experiment?.score.primary ?? baseline)}
         </span>
-        <span className="mt-1 text-xs text-slate-400">
+        <span className="mt-1 text-xs text-slate-500">
           {experiment === null
             ? 'Starting point'
             : formatExperimentStatus(experiment.status)}

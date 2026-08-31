@@ -66,7 +66,7 @@ export function App(): ReactElement {
   const { snapshot } = state;
 
   return (
-    <div className="min-h-screen bg-[#111827] text-slate-300">
+    <div className="min-h-screen bg-slate-50 text-slate-700">
       <DashboardHeader detail={snapshot.detail} />
       <main className="mx-auto grid max-w-[1600px] gap-3 px-3 py-3 md:px-4">
         <Overview detail={snapshot.detail} />
@@ -107,17 +107,17 @@ interface StatusScreenProps {
 
 function StatusScreen({ title, detail, onRetry }: StatusScreenProps): ReactElement {
   return (
-    <main className="grid min-h-screen place-items-center bg-[#111827] p-6 text-center text-slate-300">
+    <main className="grid min-h-screen place-items-center bg-slate-50 p-6 text-center text-slate-700">
       <div className="max-w-md">
-        <div className="mx-auto mb-5 grid size-12 place-items-center rounded border border-slate-600 bg-slate-800 font-semibold text-slate-200">
+        <div className="mx-auto mb-5 grid size-12 place-items-center rounded border border-slate-300 bg-white font-semibold text-slate-700 shadow-sm">
           KR
         </div>
-        <h1 className="text-xl font-semibold text-slate-100">{title}</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-400">{detail}</p>
+        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
         {onRetry !== undefined && (
           <button
             type="button"
-            className="mt-5 rounded border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm text-slate-200 hover:border-blue-400"
+            className="mt-5 rounded border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm hover:border-blue-500 hover:text-blue-700"
             onClick={onRetry}
           >
             Try again
