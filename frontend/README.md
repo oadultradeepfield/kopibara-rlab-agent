@@ -1,4 +1,4 @@
-# Kopibara Agent dashboard
+# Kopibara RLab Agent dashboard
 
 Small read-only dashboard for the latest autonomous run. The agent writes its
 manifest to `frontend/public/run.json`; the dashboard reads that file directly,

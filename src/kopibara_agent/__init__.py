@@ -1,1 +1,1 @@
-"""Kopibara autonomous research agent for KuaiRand."""
+"""Kopibara RLab Agent: an autonomous research agent for KuaiRand."""

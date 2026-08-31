@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./assets/logo.png" alt="Kopibara" width="140" />
+<img src="./assets/logo.png" alt="Kopibara RLab Agent" width="140" />
 
-# Kopibara
+# Kopibara RLab Agent
 
 **An autonomous ML research agent that runs the MLE iteration loop on KuaiRand-Pure: it
 reads the benchmark, writes the code, measures itself, and stops when progress levels
@@ -15,7 +15,7 @@ off.**
 
 </div>
 
-Kopibara turns a benchmark into a bounded code-search problem. Given the organizer's
+Kopibara RLab Agent turns a benchmark into a bounded code-search problem. Given the organizer's
 KuaiRand-Pure contract, it proposes a testable hypothesis, patches one candidate script,
 runs it in a sandboxed subprocess, reads the validation metrics, and keeps the winner.
 It repeats until convergence, a configured cap, or another terminal condition.
@@ -50,7 +50,7 @@ It repeats until convergence, a configured cap, or another terminal condition.
 **KuaiRand-Pure (required benchmark).** Validation-best checkpoint from a converged
 autonomous run, compared with the organizer's published FM baseline.
 
-| Metric | Official FM baseline | Kopibara | Absolute delta |
+| Metric | Official FM baseline | Kopibara RLab Agent | Absolute delta |
 | :--- | ---: | ---: | ---: |
 | GAUC | 0.6674 | **0.7059** | **+0.0385** |
 | nDCG@5 | 0.5357 | **0.5538** | **+0.0181** |
@@ -68,7 +68,7 @@ because 27.1% of users have no positive label at all. Read scores against that r
 | Random scoring | 0.4834 | 0% |
 | Item popularity | 0.5807 | 26.7% |
 | Official FM baseline | 0.6016 | 32.4% |
-| **Kopibara** | **0.6299** | **40.1%** |
+| **Kopibara RLab Agent** | **0.6299** | **40.1%** |
 | Oracle ceiling | 0.8484 | 100% |
 
 **Resource consumption to reach the converged result.**
@@ -85,7 +85,7 @@ because 27.1% of users have no positive label at all. Read scores against that r
 <details>
 <summary><b>KuaiRand-1K (bonus benchmark)</b></summary>
 
-| Metric | Kopibara (validation) |
+| Metric | Kopibara RLab Agent (validation) |
 | :--- | ---: |
 | GAUC | 0.6853 |
 | nDCG@5 | 0.6166 |

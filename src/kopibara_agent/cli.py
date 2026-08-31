@@ -1,4 +1,4 @@
-"""Command-line entry point for Kopibara's agent."""
+"""Command-line entry point for Kopibara RLab Agent."""
 
 import argparse
 import os
@@ -12,7 +12,7 @@ from kopibara_agent.research_agent import run_agent
 
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
-    parser = argparse.ArgumentParser(description="Run the Kopibara agent.")
+    parser = argparse.ArgumentParser(description="Run Kopibara RLab Agent.")
     parser.add_argument("--check-api", action="store_true")
     parser.add_argument("--prompt")
     parser.add_argument("--run", action="store_true")

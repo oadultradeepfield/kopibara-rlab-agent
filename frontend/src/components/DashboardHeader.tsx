@@ -17,7 +17,7 @@ export function DashboardHeader({ detail }: DashboardHeaderProps): ReactElement 
           <div className="min-w-0">
             <p className="text-xs text-slate-400">Recommender system research</p>
             <h1 className="truncate text-base font-semibold text-slate-100">
-              Kopibara Research Dashboard
+              Kopibara RLab Agent Dashboard
             </h1>
           </div>
         </div>
