@@ -1,22 +1,11 @@
 #import "arkheion-sans.typ": arkheion, arkheion-appendices
 
 #show: arkheion.with(
-  title: "Kopibara RLab Agent: Autonomous Code Search for KuaiRand Ranking",
+  title: "An autonomous ML researcher that searches over executable hypotheses, one measured code change at a time.",
   authors: (
     (name: "Phanuphat Srisukhawasu", email: "phanuphat.srisukhawasu@gmail.com", affiliation: "Kopibara RLab"),
     (name: "Supachod Trakansirorut", email: "spchdt@gmail.com", affiliation: "Kopibara RLab"),
   ),
-  abstract: [
-    This work implements an autonomous machine-learning research agent for the KuaiRand
-    ranking task. The controller treats model development as a bounded search over exact
-    code edits: an OpenAI language model proposes a hypothesis, the candidate runs on
-    train and validation data, and the controller retains or rejects the change from the
-    measured primary score. A leakage-safe LightGBM ranker with lagged multi-feedback
-    history features is used as the seed. The final Pure run reaches validation primary
-    0.6299, while the larger 1K run reaches 0.7498 after 21 logged trials. Both runs
-    produce schema-checked submissions without manual intervention.
-  ],
-  keywords: ("autonomous machine learning", "recommender systems", "code search"),
   date: "September 1, 2026",
 )
 
@@ -25,7 +14,7 @@
 #show math.equation: set text(font: "Fira Math")
 #show raw: set text(size: 9pt)
 #show raw.where(block: true): block.with(
-  fill: luma(245), inset: 7pt, radius: 3pt, width: 100%,
+  fill: luma(245), inset: 8pt, radius: 3pt, width: 100%,
 )
 
 = Objective and evaluation
@@ -71,14 +60,16 @@ official reference only for Pure.
   table(
     columns: (1.1fr, 1.35fr, 1fr, 1fr, 1fr),
     stroke: 0.5pt + luma(205),
-    inset: 5pt,
+    inset: (x: 8pt, y: 4pt),
     align: (left, right, right, right, right),
-    [*Benchmark*], [*Reference primary*], [*GAUC*], [*nDCG#text("@")5*], [*Primary*],
+    table.header[*Benchmark*][*Reference primary*][*GAUC*][*nDCG#text("@")5*][*Primary*],
     [KuaiRand-Pure], [0.6016 official], [0.7059], [0.5538], [*0.6299*],
     [KuaiRand-1K], [0.6079 measured], [0.7107], [0.7888], [*0.7498*],
   ),
   caption: [Validation results. The 1K reference is not an organizer-published score.]
 ) <results>
+
+#v(0.7em)
 
 The Pure seed already exceeds the official validation primary by 0.0283. Its three child
 trials tested the `rank_xendcg` objective, a wider ranking truncation, and disabled query
@@ -92,6 +83,7 @@ primary to 0.6920. Increasing tree capacity to 63 leaves raised it to 0.7311. Ad
 `max_bin=767` produced the run's highest primary, 0.7498. Nearby values were tested:
 `max_bin=511` reached 0.7493, `1023` reached 0.7473, and `640` reached 0.7475.
 
+#v(0.7em)
 #figure(
   image("score-chart.jpg", width: 100%),
   caption: [1K validation trajectory captured from the local dashboard. The plotted lines show primary, GAUC, nDCG#text("@")5, and the measured reference.]
@@ -131,7 +123,3 @@ the starter kit.
 The source implementation, manifests, and row-aligned submissions are stored in the
 repository. The method is compatible with the organizer's date-based split contract and
 uses no external training data or benchmark test labels.
-
-= References
-
-#bibliography("references.bib")
