@@ -144,7 +144,7 @@ def read_rich_rows(
 
 def mask_test_labels(rows: list[Row]) -> list[Row]:
     """Remove evaluation labels before rows reach candidate experiments."""
-    return [row[:-1] + (0,) for row in rows]
+    return [(*row[:-1], 0) for row in rows]
 
 
 def mask_test_feedback(rows: list[RichInteraction]) -> list[RichInteraction]:
