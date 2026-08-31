@@ -7,7 +7,7 @@ import { ExperimentTable } from './components/ExperimentTable';
 import { LineageTree } from './components/LineageTree';
 import { MetricChart } from './components/MetricChart';
 import { Overview } from './components/Overview';
-import { loadRunSnapshot } from './run';
+import { datasetPath, loadRunSnapshot, type DatasetName } from './run';
 import type { RunSnapshot } from './types';
 
 type ViewState =
@@ -18,13 +18,14 @@ type ViewState =
 export function App(): ReactElement {
   const [state, setState] = useState<ViewState>({ status: 'loading' });
   const [reload, setReload] = useState(0);
+  const [dataset, setDataset] = useState<DatasetName>('KuaiRand-Pure');
   const [selectedExperimentId, setSelectedExperimentId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setState({ status: 'loading' });
 
-    void loadRunSnapshot().then(
+    void loadRunSnapshot(datasetPath(dataset)).then(
       (snapshot) => {
         if (!cancelled) {
           setState({ status: 'ready', snapshot });
@@ -40,7 +41,7 @@ export function App(): ReactElement {
     return () => {
       cancelled = true;
     };
-  }, [reload]);
+  }, [dataset, reload]);
 
   if (state.status === 'loading') {
     return (
@@ -67,7 +68,14 @@ export function App(): ReactElement {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-700">
-      <DashboardHeader detail={snapshot.detail} />
+      <DashboardHeader
+        detail={snapshot.detail}
+        dataset={dataset}
+        onDatasetChange={(value) => {
+          setDataset(value);
+          setSelectedExperimentId(null);
+        }}
+      />
       <main className="mx-auto grid max-w-[1600px] gap-3 px-3 py-3 md:px-4">
         <Overview detail={snapshot.detail} />
         <LineageTree

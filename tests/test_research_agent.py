@@ -68,10 +68,16 @@ def test_convergence_requires_three_small_changes() -> None:
 
 
 def test_write_dashboard_run_publishes_the_manifest(tmp_path: Path) -> None:
-    path = write_dashboard_run(tmp_path, {"status": "completed"})
+    path = write_dashboard_run(
+        tmp_path,
+        {"status": "completed", "benchmark": "KuaiRand-Pure"},
+    )
 
     assert path == tmp_path / "frontend" / "public" / "run.json"
     assert '"status": "completed"' in path.read_text(encoding="utf-8")
+    assert '"benchmark": "KuaiRand-Pure"' in (
+        tmp_path / "frontend" / "public" / "benchmarks" / "pure.json"
+    ).read_text(encoding="utf-8")
 
 
 def test_candidate_command_leaves_model_options_to_the_candidate(

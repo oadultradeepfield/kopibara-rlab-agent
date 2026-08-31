@@ -1,0 +1,292 @@
+{
+  "status": "completed",
+  "stopped_reason": "wall_clock_cap",
+  "run_id": "20260831T124656Z",
+  "benchmark": "KuaiRand-1K",
+  "baseline_validation": {
+    "gauc": 0.6662,
+    "ndcg_at_5": 0.5496,
+    "primary": 0.6079
+  },
+  "runtime_baseline_validation": {
+    "gauc": 0.6662,
+    "ndcg_at_5": 0.5496,
+    "primary": 0.6079
+  },
+  "best_validation": {
+    "gauc": 0.710727870464325,
+    "ndcg_at_5": 0.7888386249542236,
+    "primary": 0.7497832775115967
+  },
+  "best_node_id": "019-child",
+  "iterations": 21,
+  "max_iterations": 50,
+  "wall_clock_seconds": 22061.325591332978,
+  "total_input_tokens": 97862,
+  "total_output_tokens": 17350,
+  "manual_interventions": 0,
+  "hidden_test_access": false,
+  "nodes": [
+    {
+      "node_id": "000-root",
+      "parent_id": null,
+      "status": "kept",
+      "title": "",
+      "hypothesis": "",
+      "validation": {
+        "gauc": 0.6529977917671204,
+        "ndcg_at_5": 0.5546624064445496,
+        "primary": 0.603830099105835
+      }
+    },
+    {
+      "node_id": "001-child",
+      "parent_id": "000-root",
+      "status": "evaluated",
+      "title": "Try LightGBM XE-NDCG ranking objective",
+      "hypothesis": "LightGBM's rank_xendcg objective may optimize top-ranked items more effectively than lambdarank for the nDCG@5 component while retaining within-user grouping.",
+      "validation": {
+        "gauc": 0.6869115829467773,
+        "ndcg_at_5": 0.6970957517623901,
+        "primary": 0.6920036673545837
+      }
+    },
+    {
+      "node_id": "002-child",
+      "parent_id": "001-child",
+      "status": "evaluated",
+      "title": "Increase LightGBM tree capacity",
+      "hypothesis": "More leaves can model nonlinear interactions between within-user feedback history, categorical context, and content features, improving ranking discrimination and top-5 ordering.",
+      "validation": {
+        "gauc": 0.7033794522285461,
+        "ndcg_at_5": 0.7587667107582092,
+        "primary": 0.7310730814933777
+      }
+    },
+    {
+      "node_id": "003-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Add latest-feedback history signals",
+      "hypothesis": "Recent feedback is often more predictive than lifetime averages for within-user ranking; exposing the latest feedback per user, video, author, and user-item scope should improve temporal personalization and top-5 ordering.",
+      "validation": {
+        "gauc": 0.7062880992889404,
+        "ndcg_at_5": 0.7320861220359802,
+        "primary": 0.7191871404647827
+      }
+    },
+    {
+      "node_id": "004-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Reduce leaf minimum for sparse history interactions",
+      "hypothesis": "Lowering the minimum samples per leaf lets LightGBM model highly predictive but sparse user-item and recent-feedback history patterns that are suppressed by the current value of 50, improving within-user discrimination and top-5 ranking.",
+      "validation": {
+        "gauc": 0.7043269276618958,
+        "ndcg_at_5": 0.7540830969810486,
+        "primary": 0.7292050123214722
+      }
+    },
+    {
+      "node_id": "005-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Smooth sparse leaf predictions",
+      "hypothesis": "Path smoothing should regularize high-cardinality categorical and user-item history interactions, reducing overfit while preserving useful nonlinear ranking patterns and improving validation GAUC/nDCG.",
+      "validation": {
+        "gauc": 0.7017250061035156,
+        "ndcg_at_5": 0.7552070021629333,
+        "primary": 0.7284660339355469
+      }
+    },
+    {
+      "node_id": "006-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Broaden ranking gradient context",
+      "hypothesis": "Using a truncation level modestly above the evaluation cutoff provides more informative relative-order gradients within each user while still emphasizing the top of the list, potentially improving GAUC without sacrificing nDCG@5.",
+      "validation": {
+        "gauc": 0.7033794522285461,
+        "ndcg_at_5": 0.7587667107582092,
+        "primary": 0.7310730814933777
+      }
+    },
+    {
+      "node_id": "007-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Focus ranking gradients on top three",
+      "hypothesis": "Reducing LightGBM's ranking truncation level from five to three concentrates pairwise optimization on the highest-value positions, which may improve the ordering of the first few items and nDCG@5 without the noisy tail gradients introduced by broader truncation.",
+      "validation": {
+        "gauc": 0.7033794522285461,
+        "ndcg_at_5": 0.7587667107582092,
+        "primary": 0.7310730814933777
+      }
+    },
+    {
+      "node_id": "008-child",
+      "parent_id": "002-child",
+      "status": "evaluated",
+      "title": "Add LightGBM L2 regularization",
+      "hypothesis": "Moderate leaf-output shrinkage can reduce overfitting from high-cardinality user/item history features while preserving their ranking signal, improving validation GAUC and nDCG@5.",
+      "validation": {
+        "gauc": 0.7102039456367493,
+        "ndcg_at_5": 0.7872693538665771,
+        "primary": 0.7487366199493408
+      }
+    },
+    {
+      "node_id": "009-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Strengthen L2 regularization",
+      "hypothesis": "Increasing leaf-output shrinkage beyond the current value may further reduce overfitting from high-cardinality user and interaction history features, improving ranking generalization on validation.",
+      "validation": {
+        "gauc": 0.7106935381889343,
+        "ndcg_at_5": 0.7822473049163818,
+        "primary": 0.7464704513549805
+      }
+    },
+    {
+      "node_id": "010-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Allow more boosting rounds",
+      "hypothesis": "The regularized ranker may still be underfit at 400 rounds; increasing the ceiling lets early stopping discover a better iteration count while retaining validation-based stopping to limit overfitting.",
+      "validation": {
+        "gauc": 0.7102039456367493,
+        "ndcg_at_5": 0.7872693538665771,
+        "primary": 0.7487366199493408
+      }
+    },
+    {
+      "node_id": "011-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Tune L2 shrinkage downward",
+      "hypothesis": "The improvement from L2 regularization suggests leaf outputs benefit from shrinkage, but the stronger tested value degraded validation; reducing lambda_l2 to 1.0 may retain generalization while recovering useful signal.",
+      "validation": {
+        "gauc": 0.709600567817688,
+        "ndcg_at_5": 0.7758690714836121,
+        "primary": 0.7427347898483276
+      }
+    },
+    {
+      "node_id": "012-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Use slower, longer boosting",
+      "hypothesis": "A lower learning rate with a larger boosting budget can improve ranking generalization by producing smoother leaf-output updates while allowing the regularized ranker to reach a better validation optimum.",
+      "validation": {
+        "gauc": 0.7090761065483093,
+        "ndcg_at_5": 0.7805806398391724,
+        "primary": 0.7448283433914185
+      }
+    },
+    {
+      "node_id": "013-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Tune intermediate L2 regularization",
+      "hypothesis": "The tested lambda_l2=2.0 improved substantially, while stronger and weaker regularization degraded; an intermediate value of 2.5 may better balance shrinkage of sparse categorical-history leaves against retaining useful within-user ranking signal.",
+      "validation": {
+        "gauc": 0.7101840376853943,
+        "ndcg_at_5": 0.7830447554588318,
+        "primary": 0.746614396572113
+      }
+    },
+    {
+      "node_id": "014-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Add mild L1 regularization",
+      "hypothesis": "A small L1 penalty can suppress unstable leaf outputs from sparse high-cardinality history interactions while retaining the useful L2-shrunk ranking signal, improving validation GAUC and nDCG@5.",
+      "validation": {
+        "gauc": 0.7058431506156921,
+        "ndcg_at_5": 0.767419695854187,
+        "primary": 0.7366313934326172
+      }
+    },
+    {
+      "node_id": "015-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Add feature subsampling regularization",
+      "hypothesis": "Subsampling features at each tree should reduce overfitting from correlated high-cardinality user, item, and history features while preserving enough context to improve validation generalization.",
+      "validation": {
+        "gauc": 0.7103756666183472,
+        "ndcg_at_5": 0.7786290049552917,
+        "primary": 0.7445023059844971
+      }
+    },
+    {
+      "node_id": "016-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Smooth categorical splits",
+      "hypothesis": "Increasing LightGBM categorical smoothing should reduce overfit from sparse user, item, and interaction-history category statistics while preserving robust within-user ranking signal.",
+      "validation": {
+        "gauc": 0.7102810740470886,
+        "ndcg_at_5": 0.7871212363243103,
+        "primary": 0.7487011551856995
+      }
+    },
+    {
+      "node_id": "017-child",
+      "parent_id": "008-child",
+      "status": "evaluated",
+      "title": "Increase numeric histogram resolution",
+      "hypothesis": "Increasing max_bin lets LightGBM preserve finer distinctions in continuous recency, duration, and historical-rate features, improving within-user ordering without changing the feature set or ranking objective.",
+      "validation": {
+        "gauc": 0.7100918889045715,
+        "ndcg_at_5": 0.7884138226509094,
+        "primary": 0.7492528557777405
+      }
+    },
+    {
+      "node_id": "018-child",
+      "parent_id": "017-child",
+      "status": "evaluated",
+      "title": "Increase histogram resolution further",
+      "hypothesis": "Raising max_bin from 511 to 1023 may preserve finer distinctions in continuous recency and feedback-rate features, improving within-user ordering beyond the current best without changing leakage-safe features.",
+      "validation": {
+        "gauc": 0.7094599604606628,
+        "ndcg_at_5": 0.7850762605667114,
+        "primary": 0.7472680807113647
+      }
+    },
+    {
+      "node_id": "019-child",
+      "parent_id": "017-child",
+      "status": "evaluated",
+      "title": "Use intermediate histogram resolution",
+      "hypothesis": "The improvement from max_bin=511 followed by degradation at 1023 suggests an intermediate 767 may preserve useful recency and rate distinctions while avoiding the finer-bin overfitting seen at 1023.",
+      "validation": {
+        "gauc": 0.710727870464325,
+        "ndcg_at_5": 0.7888386249542236,
+        "primary": 0.7497832775115967
+      }
+    },
+    {
+      "node_id": "020-child",
+      "parent_id": "019-child",
+      "status": "evaluated",
+      "title": "Tune histogram resolution near the current optimum",
+      "hypothesis": "The gain from max_bin=767 and degradation at 1023 suggest the optimum may lie slightly below 767; using 640 can retain useful recency and rate distinctions while reducing fine-bin overfitting.",
+      "validation": {
+        "gauc": 0.7098128795623779,
+        "ndcg_at_5": 0.7850944399833679,
+        "primary": 0.7474536895751953
+      }
+    },
+    {
+      "node_id": "021-child",
+      "parent_id": "019-child",
+      "status": "recovered_failure",
+      "title": "Tune XE-NDCG gradient scaling",
+      "hypothesis": "Reducing the XE-NDCG sigmoid scale should soften overly aggressive pairwise gradients from noisy within-user comparisons, improving generalization while preserving the current top-5-focused ranking objective.",
+      "validation": null
+    }
+  ],
+  "final_submission": "runs/autonomous-final-1k-corrected/20260831T124656Z/submission.csv"
+}

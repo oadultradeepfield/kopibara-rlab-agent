@@ -47,6 +47,10 @@ from kopibara_agent.runner import (
 )
 
 DASHBOARD_RUN_PATH = Path("frontend") / "public" / "run.json"
+DASHBOARD_VARIANT_PATHS = {
+    "KuaiRand-Pure": Path("frontend") / "public" / "benchmarks" / "pure.json",
+    "KuaiRand-1K": Path("frontend") / "public" / "benchmarks" / "1k.json",
+}
 
 
 def has_converged(
@@ -90,6 +94,12 @@ def write_dashboard_run(root: Path, manifest: Mapping[str, object]) -> Path:
     """Publish the latest run manifest for the local frontend."""
     path = root / DASHBOARD_RUN_PATH
     write_log(path, manifest)
+    benchmark = manifest.get("benchmark")
+    variant_path = (
+        DASHBOARD_VARIANT_PATHS.get(benchmark) if isinstance(benchmark, str) else None
+    )
+    if variant_path is not None:
+        write_log(root / variant_path, manifest)
     return path
 
 

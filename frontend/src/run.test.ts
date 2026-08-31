@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildSnapshot } from './run';
+import { buildSnapshot, datasetPath } from './run';
 import type { RunManifest } from './types';
 
 const MANIFEST: RunManifest = {
@@ -39,6 +39,11 @@ const MANIFEST: RunManifest = {
 };
 
 describe('run artifact adapter', () => {
+  it('maps each supported dataset to its saved artifact', () => {
+    expect(datasetPath('KuaiRand-Pure')).toBe('/benchmarks/pure.json');
+    expect(datasetPath('KuaiRand-1K')).toBe('/benchmarks/1k.json');
+  });
+
   it('maps the saved manifest into the dashboard view', () => {
     const snapshot = buildSnapshot(MANIFEST);
 

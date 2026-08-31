@@ -13,6 +13,19 @@ const RUN_JSON_PATH = '/run.json';
 const DEFAULT_BENCHMARK = 'KuaiRand-Pure';
 const SEED_NODE_ID = '000-root';
 
+export const DATASET_OPTIONS = [
+  { label: 'KuaiRand-Pure', value: 'KuaiRand-Pure', path: '/benchmarks/pure.json' },
+  { label: 'KuaiRand-1K', value: 'KuaiRand-1K', path: '/benchmarks/1k.json' },
+] as const;
+
+export type DatasetName = (typeof DATASET_OPTIONS)[number]['value'];
+
+export function datasetPath(dataset: DatasetName): string {
+  return (
+    DATASET_OPTIONS.find((option) => option.value === dataset)?.path ?? RUN_JSON_PATH
+  );
+}
+
 export async function loadRunSnapshot(url = RUN_JSON_PATH): Promise<RunSnapshot> {
   const response = await fetch(url, { cache: 'no-store' });
 
