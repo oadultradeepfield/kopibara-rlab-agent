@@ -75,6 +75,8 @@ def run_seed(
 
 def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]:
     """Run all seeds, create the ensemble, and write judging evidence."""
+    data_directory = data_directory.resolve()
+    run_directory = run_directory.resolve()
     started = time.monotonic()
     run_directory.mkdir(parents=True, exist_ok=True)
     seed_records: list[dict[str, object]] = []
@@ -148,7 +150,7 @@ def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]
         "manual_interventions": 0,
         "hidden_test_access": False,
         "seed_runs": seed_records,
-        "final_submission": str(submission_path),
+        "final_submission": str(submission_path.relative_to(PROJECT_ROOT)),
     }
     (run_directory / "manifest.json").write_text(
         json.dumps(manifest, indent=2) + "\n", encoding="utf-8"

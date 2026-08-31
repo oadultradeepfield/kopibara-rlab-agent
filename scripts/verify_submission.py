@@ -46,6 +46,17 @@ def find_latest_champion(root: Path) -> Path | None:
     return candidates[-1] if candidates else None
 
 
+def resolve_submission_path(root: Path, run_directory: Path, raw_path: str) -> Path:
+    """Resolve current and pre-move submission paths from a run manifest."""
+    submitted = Path(raw_path)
+    candidates = [submitted] if submitted.is_absolute() else [root / submitted]
+    candidates.append(run_directory / submitted.name)
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise ValueError("final submission is missing")
+
+
 def check_submission(root: Path, run_directory: Path) -> None:
     """Check code naming, logs, outputs, and the official row validator."""
     project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
@@ -65,9 +76,9 @@ def check_submission(root: Path, run_directory: Path) -> None:
     require(manifest["hidden_test_access"] is False, "hidden-test boundary failed")
     require(manifest["total_input_tokens"] >= 0, "input token count missing")
     require(manifest["total_output_tokens"] >= 0, "output token count missing")
-    submission = Path(manifest["final_submission"])
-    submission_path = submission if submission.is_absolute() else root / submission
-    require(submission_path.is_file(), "final submission is missing")
+    submission_path = resolve_submission_path(
+        root, run_directory, manifest["final_submission"]
+    )
 
     iteration_logs = sorted(run_directory.glob("[0-9]*.json"))
     require(iteration_logs, "iteration logs are missing")
@@ -104,9 +115,9 @@ def check_champion(root: Path, run_directory: Path) -> None:
         manifest["manual_interventions"] == 0, "champion intervention count missing"
     )
     require(manifest["hidden_test_access"] is False, "champion used hidden-test data")
-    submission = Path(manifest["final_submission"])
-    submission_path = submission if submission.is_absolute() else root / submission
-    require(submission_path.is_file(), "champion submission is missing")
+    submission_path = resolve_submission_path(
+        root, run_directory, manifest["final_submission"]
+    )
     command = (
         sys.executable,
         str(root / "kuairand-starter-kit" / "submit.py"),

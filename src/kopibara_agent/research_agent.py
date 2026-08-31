@@ -864,6 +864,7 @@ def run_search_iteration(
 def build_manifest(
     state: SearchState,
     *,
+    root: Path,
     stopped_reason: str,
     attempted: int,
     max_iterations: int,
@@ -898,7 +899,11 @@ def build_manifest(
             }
             for node in state.nodes.values()
         ],
-        "final_submission": final_submission,
+        "final_submission": (
+            str(final_submission.relative_to(root))
+            if final_submission is not None
+            else None
+        ),
     }
 
 
@@ -979,6 +984,7 @@ def run_agent(
         run_directory / "manifest.json",
         build_manifest(
             state,
+            root=root,
             stopped_reason=stopped_reason,
             attempted=attempted,
             max_iterations=max_iterations,
