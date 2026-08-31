@@ -25,6 +25,7 @@ kuairand-starter-kit/*.tar.gz
 runs/
 outputs/
 work/
+submission.zip
 
 # Local submission-only checks.
 experiments/check_submission.py
