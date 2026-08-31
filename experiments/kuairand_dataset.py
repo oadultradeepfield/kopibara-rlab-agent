@@ -2,7 +2,7 @@
 
 import csv
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 Row = tuple[object, ...]
@@ -142,6 +142,17 @@ def read_rich_rows(
     return rows
 
 
+def mask_test_labels(rows: list[Row]) -> list[Row]:
+    """Remove evaluation labels before rows reach candidate experiments."""
+    return [row[:-1] + (0,) for row in rows]
+
+
+def mask_test_feedback(rows: list[RichInteraction]) -> list[RichInteraction]:
+    """Remove evaluation feedback before rows reach candidate experiments."""
+    empty_feedback = (0,) * len(FEEDBACK_COLUMNS)
+    return [replace(row, feedback=empty_feedback) for row in rows]
+
+
 def load_dataset(data_directory: Path) -> dict[str, list[Row]]:
     """Load train, validation, and test rows from Pure or 1K data."""
     authors = read_authors(find_file(data_directory, "video_features_basic_"))
@@ -149,10 +160,12 @@ def load_dataset(data_directory: Path) -> dict[str, list[Row]]:
     rows.extend(
         read_rows(find_file(data_directory, "log_standard_4_22_to_5_08_"), authors)
     )
-    return {
+    splits = {
         name: [row for row in rows if bounds[0] <= row[0] <= bounds[1]]
         for name, bounds in SPLITS.items()
     }
+    splits["test"] = mask_test_labels(splits["test"])
+    return splits
 
 
 def load_rich_dataset(data_directory: Path) -> dict[str, list[RichInteraction]]:
@@ -177,7 +190,9 @@ def load_rich_dataset(data_directory: Path) -> dict[str, list[RichInteraction]]:
             user_features,
         )
     )
-    return {
+    splits = {
         name: [row for row in rows if bounds[0] <= row.date <= bounds[1]]
         for name, bounds in SPLITS.items()
     }
+    splits["test"] = mask_test_feedback(splits["test"])
+    return splits
