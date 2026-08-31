@@ -1,7 +1,7 @@
 [project]
 name = "kopibara-agent"
 version = "0.1.0"
-description = "Autonomous research agent for the KuaiRand hackathon."
+description = "Autonomous machine-learning research agent."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

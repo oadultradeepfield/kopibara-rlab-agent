@@ -12,8 +12,6 @@ EXPECTED_PROJECT_NAME = "kopibara-agent"
 EXPECTED_COMMAND = "kopibara-agent"
 REQUIRED_PROJECT_FILES = (
     "README.md",
-    "SUBMISSION_DESCRIPTION.md",
-    "SUBMISSION_CHECKLIST.md",
     "pyproject.toml",
     "uv.lock",
     "Makefile",
@@ -21,7 +19,7 @@ REQUIRED_PROJECT_FILES = (
     "experiments/pairwise_fm.py",
     "experiments/history_lgbm.py",
     "experiments/ensemble_submission.py",
-    "experiments/run_winning_pipeline.py",
+    "experiments/run_history_pipeline.py",
     "scripts/verify_starter.py",
 )
 

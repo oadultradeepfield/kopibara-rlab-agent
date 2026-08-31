@@ -1,4 +1,4 @@
-"""Run, log, and package the lowest-effort high-score Pure pipeline."""
+"""Run, log, and package a reproducible history-ranker pipeline."""
 
 import argparse
 import json
@@ -172,12 +172,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.output_dir
         else PROJECT_ROOT
         / "runs"
-        / "champion"
+        / "history-pipeline"
         / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     )
     manifest = run_pipeline(Path(args.data_dir), run_directory)
     metrics = manifest["best_validation"]
-    print(f"champion validation: {json.dumps(metrics)}")
+    print(f"history pipeline validation: {json.dumps(metrics)}")
     print(f"submission: {manifest['final_submission']}")
     return 0
 
