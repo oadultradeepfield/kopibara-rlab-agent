@@ -27,7 +27,7 @@ export function Overview({ detail }: OverviewProps): ReactElement {
           </h2>
         </div>
         <p className="font-mono text-xs text-slate-400">
-          {detail.iterations} autonomous experiments
+          {detail.iterations} autonomous iterations
         </p>
       </div>
 
