@@ -250,6 +250,7 @@ def run_history_model(
             "objective": objective,
             "metric": "ndcg" if objective == "lambdarank" else "auc",
             "eval_at": [5],
+            "lambdarank_truncation_level": 5,
             "learning_rate": learning_rate,
             "num_leaves": num_leaves,
             "min_data_in_leaf": min_data_in_leaf,
