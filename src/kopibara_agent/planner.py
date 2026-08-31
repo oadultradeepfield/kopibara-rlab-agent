@@ -90,7 +90,7 @@ def build_planner_prompt(
     parent: Node,
     source: str,
 ) -> str:
-    """Give Luna task facts, tree state, and the parent code to edit."""
+    """Build the planner prompt from task facts, tree state, and parent code."""
     tree = [
         {
             "node_id": node.node_id,
@@ -153,7 +153,7 @@ def build_repair_prompt(
     error: str,
     parent_id: str,
 ) -> str:
-    """Ask Luna to repair one failed candidate."""
+    """Build the repair prompt for one failed candidate."""
     return f"""Repair one failed candidate in a controlled ML experiment.
 The candidate must remain a standalone Python script with the same CLI and
 validation output. Do not use test labels or hidden-test information.

@@ -26,7 +26,7 @@ EXPECTED_METRICS = ["GAUC", "nDCG@5"]
 
 
 def require(condition: bool, message: str) -> None:
-    """Raise a useful error when one contract check fails."""
+    """Raise when one contract check fails."""
     if not condition:
         raise ValueError(message)
 

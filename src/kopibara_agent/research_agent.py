@@ -76,7 +76,7 @@ def select_parent(nodes: Mapping[str, Node]) -> Node:
 
 
 def write_log(path: Path, record: Mapping[str, object]) -> None:
-    """Write a complete iteration record."""
+    """Write one iteration record."""
     path.write_text(
         json.dumps(record, indent=2, default=str) + "\n",
         encoding="utf-8",

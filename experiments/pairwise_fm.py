@@ -1,4 +1,4 @@
-"""One cheap pairwise-loss experiment built on the official FM."""
+"""Pairwise-loss experiment built on the official FM baseline."""
 
 import argparse
 import json

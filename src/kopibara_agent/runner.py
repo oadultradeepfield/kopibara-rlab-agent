@@ -103,7 +103,7 @@ def run_command(
 
 
 def build_environment(root: Path) -> dict[str, str]:
-    """Give candidates project location without forwarding the API key."""
+    """Build the candidate environment without forwarding the API key."""
     environment = os.environ.copy()
     environment.pop("OPENAI_API_KEY", None)
     environment["KUAI_PROJECT_ROOT"] = str(root)
@@ -115,7 +115,7 @@ def build_candidate_command(
     data_directory: Path,
     output_directory: Path,
 ) -> tuple[str, ...]:
-    """Build the only candidate command the controller can execute."""
+    """Build the fixed candidate command the controller executes."""
     return (
         sys.executable,
         str(code_path),

@@ -1,4 +1,4 @@
-"""Compact DeepFM multi-task ranker for a validation-only experiment."""
+"""DeepFM multi-task ranker selected on validation only."""
 
 import argparse
 import json
@@ -173,7 +173,7 @@ class PLE(nn.Module):
 
     @staticmethod
     def make_expert(input_dimension: int) -> nn.Sequential:
-        """Build one small expert tower."""
+        """Build one expert tower."""
         return nn.Sequential(
             nn.Linear(input_dimension, HIDDEN_DIMENSION),
             nn.ReLU(),

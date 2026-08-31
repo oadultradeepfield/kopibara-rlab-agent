@@ -1,4 +1,4 @@
-"""Small OpenAI Responses API adapter."""
+"""OpenAI Responses API adapter."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -28,12 +28,12 @@ def has_api_key(environment: Mapping[str, str]) -> bool:
 
 
 def ask_model(prompt: str, *, client: OpenAI | None = None) -> str:
-    """Ask Luna one question through the Responses API."""
+    """Send one prompt through the Responses API and return its text."""
     return ask_model_with_usage(prompt, client=client).text
 
 
 def ask_model_with_usage(prompt: str, *, client: OpenAI | None = None) -> ModelAnswer:
-    """Ask Luna and retain token accounting for the run manifest."""
+    """Send one prompt and return its text with token counts."""
     if not prompt.strip():
         raise ValueError("prompt must not be empty")
 

@@ -198,7 +198,7 @@ def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Run the reproducible high-score pipeline."""
+    """Run the seeded history-ranker pipeline."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data-dir",

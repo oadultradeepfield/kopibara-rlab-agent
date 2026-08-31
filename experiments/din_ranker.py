@@ -1,4 +1,4 @@
-"""Leakage-safe, compact target-aware history ranker."""
+"""Leakage-safe target-aware history ranker."""
 
 import argparse
 import json

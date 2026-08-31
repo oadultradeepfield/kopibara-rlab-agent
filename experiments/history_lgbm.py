@@ -1,4 +1,4 @@
-"""Leakage-safe historical target features with a small LightGBM model."""
+"""Leakage-safe historical target features with a LightGBM ranker."""
 
 import argparse
 import json

@@ -1,4 +1,4 @@
-"""Stable configuration for the first agent shell."""
+"""Fixed configuration for the autonomous research loop."""
 
 from pathlib import Path
 from typing import Final, Literal
