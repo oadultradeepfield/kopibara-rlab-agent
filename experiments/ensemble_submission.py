@@ -18,8 +18,10 @@ from evaluate import evaluate  # noqa: E402
 from kuairand_dataset import load_dataset  # noqa: E402
 
 
-def average_scores(score_paths: Sequence[Path]) -> np.ndarray:
-    """Average z-normalized finite score arrays with identical row counts."""
+def average_scores(
+    score_paths: Sequence[Path], weights: Sequence[float] | None = None
+) -> np.ndarray:
+    """Blend z-normalized finite score arrays with identical row counts."""
     if not score_paths:
         raise ValueError("at least one score file is required")
     arrays = [np.load(path) for path in score_paths]
@@ -27,6 +29,19 @@ def average_scores(score_paths: Sequence[Path]) -> np.ndarray:
         raise ValueError("each score file must contain a one-dimensional array")
     if len({len(array) for array in arrays}) != 1:
         raise ValueError("score files must have identical lengths")
+    active_weights = (
+        np.ones(len(arrays), dtype=np.float64)
+        if weights is None
+        else np.asarray(weights, dtype=np.float64)
+    )
+    if (
+        active_weights.ndim != 1
+        or len(active_weights) != len(arrays)
+        or not np.isfinite(active_weights).all()
+        or (active_weights < 0).any()
+        or not active_weights.sum() > 0
+    ):
+        raise ValueError("weights must be finite, non-negative, and non-zero")
     normalized = []
     for array in arrays:
         standard_deviation = float(array.std())
@@ -35,7 +50,7 @@ def average_scores(score_paths: Sequence[Path]) -> np.ndarray:
             if standard_deviation
             else array - array.mean()
         )
-    scores = np.mean(np.stack(normalized), axis=0)
+    scores = np.average(np.stack(normalized), axis=0, weights=active_weights)
     if not np.isfinite(scores).all():
         raise ValueError("averaged scores contain NaN or Inf")
     return scores
@@ -46,10 +61,11 @@ def write_submission(
     score_paths: Sequence[Path],
     output_path: Path,
     valid_score_paths: Sequence[Path] = (),
+    weights: Sequence[float] | None = None,
 ) -> None:
     """Write averaged scores in the organizer's required row order."""
     rows = load_dataset(data_directory)["test"]
-    scores = average_scores(score_paths)
+    scores = average_scores(score_paths, weights)
     if len(scores) != len(rows):
         raise ValueError(f"score count {len(scores)} != row count {len(rows)}")
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -61,7 +77,7 @@ def write_submission(
             writer.writerow((row_id, row[1], row[2], float(score)))
     if valid_score_paths:
         valid_rows = load_dataset(data_directory)["valid"]
-        valid_scores = average_scores(valid_score_paths)
+        valid_scores = average_scores(valid_score_paths, weights)
         if len(valid_scores) != len(valid_rows):
             raise ValueError(
                 f"validation score count {len(valid_scores)} != "
@@ -84,6 +100,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--data-dir", required=True)
     parser.add_argument("--scores", nargs="+", required=True)
     parser.add_argument("--valid-scores", nargs="*")
+    parser.add_argument("--weights", nargs="+", type=float)
     parser.add_argument("--output", required=True)
     args = parser.parse_args(argv)
     write_submission(
@@ -91,6 +108,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         [Path(path) for path in args.scores],
         Path(args.output),
         [Path(path) for path in args.valid_scores or []],
+        args.weights,
     )
     return 0
 
