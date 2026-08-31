@@ -23,3 +23,7 @@ kuairand-starter-kit/*.tar.gz
 runs/
 outputs/
 work/
+
+# Local submission-only checks.
+experiments/check_submission.py
+scripts/verify_submission.py

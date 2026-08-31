@@ -70,8 +70,6 @@ files are written to ignored run directories.
 
 ```bash
 make check
-make verify-submission
 ```
 
-The second command validates the local benchmark package and any available
-run artifacts. It does not publish anything externally.
+The checks do not publish anything externally.

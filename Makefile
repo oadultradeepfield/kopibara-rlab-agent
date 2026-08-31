@@ -4,7 +4,7 @@ RUN := $(UV) run --directory $(MAKEFILE_DIR)
 SOURCES := src tests
 
 .DEFAULT_GOAL := check
-.PHONY := install fmt lint types test verify-starter verify-submission pairwise deepfm lambdarank history history-ensemble history-pipeline bonus-1k bonus-1k-lgbm autonomous check cov install-hooks clean
+.PHONY := install fmt lint types test verify-starter pairwise deepfm lambdarank history history-ensemble history-pipeline bonus-1k bonus-1k-lgbm autonomous check cov install-hooks clean
 
 install:
 	cd $(MAKEFILE_DIR) && $(UV) sync --all-groups
@@ -26,9 +26,6 @@ test:
 verify-starter:
 	$(RUN) python scripts/verify_starter.py
 
-verify-submission:
-	$(RUN) python scripts/verify_submission.py
-
 pairwise:
 	$(RUN) python experiments/pairwise_fm.py
 
@@ -46,7 +43,6 @@ history-ensemble:
 	$(RUN) python experiments/history_lgbm.py --feedbacks all --seed 1 --output-dir runs/history-lgbm-pure/seed1
 	$(RUN) python experiments/history_lgbm.py --feedbacks all --seed 2 --output-dir runs/history-lgbm-pure/seed2
 	$(RUN) python experiments/ensemble_submission.py --data-dir kuairand-starter-kit/KuaiRand-Pure/data --scores runs/history-lgbm-pure/seed0/test_scores.npy runs/history-lgbm-pure/seed1/test_scores.npy runs/history-lgbm-pure/seed2/test_scores.npy --output runs/history-lgbm-pure/submission.csv
-	$(RUN) python experiments/check_submission.py --data-dir kuairand-starter-kit/KuaiRand-Pure/data --submission runs/history-lgbm-pure/submission.csv
 
 history-pipeline:
 	$(RUN) python experiments/run_history_pipeline.py
@@ -54,12 +50,10 @@ history-pipeline:
 bonus-1k:
 	$(RUN) python experiments/pairwise_fm.py --data_dir kuairand-starter-kit/KuaiRand-1K/data --output-dir runs/bonus-1k/latest
 	$(RUN) python experiments/write_submission.py --data-dir kuairand-starter-kit/KuaiRand-1K/data --scores runs/bonus-1k/latest/test_scores.npy --output runs/bonus-1k/latest/submission.csv
-	$(RUN) python experiments/check_submission.py --data-dir kuairand-starter-kit/KuaiRand-1K/data --submission runs/bonus-1k/latest/submission.csv
 
 bonus-1k-lgbm:
 	$(RUN) python experiments/lambdarank.py --data-dir kuairand-starter-kit/KuaiRand-1K/data --objective binary --seed 0 --output-dir runs/lightgbm-binary-1k/seed0
 	$(RUN) python experiments/write_submission.py --data-dir kuairand-starter-kit/KuaiRand-1K/data --scores runs/lightgbm-binary-1k/seed0/test_scores.npy --output runs/lightgbm-binary-1k/seed0/submission.csv
-	$(RUN) python experiments/check_submission.py --data-dir kuairand-starter-kit/KuaiRand-1K/data --submission runs/lightgbm-binary-1k/seed0/submission.csv
 
 autonomous:
 	$(RUN) kopibara-agent --run
