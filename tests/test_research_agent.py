@@ -1,0 +1,55 @@
+"""Tests for the autonomous controller's pure parsing and stopping logic."""
+
+import pytest
+
+from kopibara_agent.research_agent import (
+    CodeEdit,
+    Metrics,
+    apply_code_edits,
+    has_converged,
+    parse_metrics,
+    parse_plan,
+)
+
+
+def test_parse_metrics_uses_validation_line() -> None:
+    metrics = parse_metrics("valid GAUC 0.6697 nDCG@5 0.5366 primary 0.6031")
+    assert metrics == Metrics(0.6697, 0.5366, 0.6031)
+
+
+def test_parse_plan_accepts_fenced_json() -> None:
+    plan = parse_plan(
+        '```json\n{"action":"edit","parent_id":"000-root",'
+        '"title":"pairwise","hypothesis":"align loss",'
+        '"stop_rule":"stop if worse","edits":[{"file":"history_lgbm.py",'
+        '"old":"before","new":"after"}]}\n```',
+        ("000-root",),
+    )
+    assert plan.parent_id == "000-root"
+    assert plan.edits[0] == CodeEdit("history_lgbm.py", "before", "after")
+
+
+def test_parse_plan_rejects_unknown_action() -> None:
+    with pytest.raises(ValueError, match="edit or stop"):
+        parse_plan(
+            '{"action":"unknown","parent_id":"000-root","hypothesis":"x",'
+            '"stop_rule":"y","edits":[]}',
+            ("000-root",),
+        )
+
+
+def test_apply_code_edits_requires_one_exact_match() -> None:
+    assert (
+        apply_code_edits("alpha beta", [CodeEdit("candidate.py", "beta", "gamma")])
+        == "alpha gamma"
+    )
+
+
+def test_apply_code_edits_rejects_ambiguous_match() -> None:
+    with pytest.raises(ValueError, match="exactly once"):
+        apply_code_edits("alpha alpha", [CodeEdit("candidate.py", "alpha", "beta")])
+
+
+def test_convergence_requires_three_small_changes() -> None:
+    assert not has_converged([0.6015, 0.6020, 0.6025])
+    assert has_converged([0.6015, 0.6020, 0.6025, 0.6030])
