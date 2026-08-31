@@ -5,8 +5,8 @@
 # Kopibara
 
 **An autonomous ML research agent that runs the MLE iteration loop on KuaiRand-Pure: it
-reads the benchmark, writes the code, measures itself, and stops when it stops
-improving.**
+reads the benchmark, writes the code, measures itself, and stops when progress levels
+off.**
 
 [![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](./pyproject.toml)
 [![uv](https://img.shields.io/badge/packaged%20with-uv-DE5FE9?logo=uv&logoColor=white)](https://docs.astral.sh/uv/)
@@ -18,12 +18,12 @@ improving.**
 Kopibara turns a benchmark into a bounded code-search problem. Given the organizer's
 KuaiRand-Pure contract, it proposes a testable hypothesis, patches one candidate script,
 runs it in a sandboxed subprocess, reads the validation metrics, and keeps the winner.
-It repeats until the organizer's convergence rule fires.
+It repeats until convergence, a configured cap, or another terminal condition.
 
 > [!NOTE]
 > The agent never sees the hidden test split. It develops on train plus public
-> validation feedback only, and the dataset adapter strips evaluation labels before
-> rows reach any generated code. See [Leakage control](#leakage-control).
+> validation feedback only, and the dataset adapter strips test labels before rows
+> reach any generated code. See [Leakage control](#leakage-control).
 
 ---
 
@@ -48,7 +48,7 @@ It repeats until the organizer's convergence rule fires.
 ## Results
 
 **KuaiRand-Pure (required benchmark).** Validation-best checkpoint from a converged
-autonomous run, against the organizer's published FM baseline.
+autonomous run, compared with the organizer's published FM baseline.
 
 | Metric | Official FM baseline | Kopibara | Absolute delta |
 | :--- | ---: | ---: | ---: |
@@ -56,13 +56,12 @@ autonomous run, against the organizer's published FM baseline.
 | nDCG@5 | 0.5357 | **0.5538** | **+0.0181** |
 | Primary (mean of the two) | 0.6016 | **0.6299** | **+0.0283** |
 
-`score_dataset` is the equal-weighted mean of the per-metric deltas, so this run scores
-**+0.0283**.
+The primary score is the equal-weighted mean of GAUC and nDCG@5. This run improves on
+the FM baseline by **+0.0283**.
 
-The metrics do not span `[0, 1]`. On the validation split, an oracle that scores rows with
-their true labels reaches primary 0.8484, and random scoring sits at 0.4834, because 27.1%
-of users have no positive label at all. Read against that attainable range rather than
-against 1.0:
+The validation primary has a dataset-specific attainable range below 1.0. An oracle that
+scores rows with their true labels reaches 0.8484, while random scoring sits at 0.4834,
+because 27.1% of users have no positive label at all. Read scores against that range:
 
 | Reference rung | Validation primary | Share of attainable range |
 | :--- | ---: | ---: |
@@ -171,9 +170,9 @@ the repository.
 
 ## How the loop works
 
-The five stages of the MLE iteration loop map onto concrete modules. Nothing about a
-stage is provided in advance except the benchmark contract itself. Dashed edges are the
-recovery path.
+The five stages of the MLE iteration loop map onto concrete modules. The benchmark
+contract supplies the task definition; the controller and model make the remaining
+search decisions. Dashed edges show the recovery path.
 
 ```mermaid
 flowchart TD
@@ -220,9 +219,9 @@ construction, or the training schedule with the same mechanism.
 
 **The seed candidate is deliberately ordinary.** `experiments/history_lgbm.py` is a
 LightGBM ranker over lagged user, item, author, and user-item feedback aggregates. It is
-strong enough that improvements have to be real, and plain enough that the model can read
-all of it in one prompt and reason about where to cut. Starting from a clever candidate
-would have made the agent's contribution unmeasurable.
+strong enough that improvements have to be real, and plain enough to support controlled
+code search. Starting from a clever candidate would have made the agent's contribution
+unmeasurable.
 
 **The planner is told what has already failed.** The prompt carries the full solution
 tree: every node's title, hypothesis, and validation score. It also carries the
@@ -273,9 +272,9 @@ guarantees have to be visible in the code.
 
 | Guarantee | Where it is enforced |
 | :--- | :--- |
-| Evaluation labels never reach candidate code | `kuairand_dataset.mask_test_labels` and `mask_test_feedback` strip feedback columns from validation and test rows before they are returned |
+| Test labels never reach candidate code | `kuairand_dataset.mask_test_labels` and `mask_test_feedback` strip labels and feedback from test rows before they are returned |
 | Test predictions are written but never scored during search | Candidates emit `test_scores.npy`; only `valid` metrics are parsed by `runner.parse_candidate_metrics` |
-| Model selection uses validation only | Every experiment early-stops and checkpoints on validation nDCG@5 |
+| Model selection uses validation only | Experiments select checkpoints from validation metrics; test labels are not used for selection |
 | No external training data | Training reads only the split directory passed on the command line |
 | The API key never reaches candidate code | `runner.build_environment` pops `OPENAI_API_KEY` before spawning the subprocess |
 | The evaluator is outside the edit boundary | The planner may edit `history_lgbm.py` and nothing else; `evaluate.py`, `data.py`, and the controller are immutable |
@@ -299,8 +298,8 @@ crashing the run:
 - A candidate that raises, times out, or emits no metric line triggers one repair round:
   the failure text is sent back with the original hypothesis, and the repaired candidate
   is rerun. Success is logged as `candidate repaired and rerun`.
-- A candidate whose stdout is truncated falls back to reading its own `metrics.json`
-  artifact before being declared a failure.
+- If candidate stdout lacks a metric line, the runner reads the candidate's `metrics.json`
+  artifact before declaring a failure.
 - A repair that fails again marks the node `recovered_failure`. The score series is
   extended with the current best so a failed branch neither advances nor resets the
   convergence window, and the search continues from a different parent.
@@ -312,7 +311,7 @@ crashing the run:
 ## Reproducing the results
 
 <details>
-<summary><b>Full autonomous run (the headline number)</b></summary>
+<summary><b>Full autonomous run</b></summary>
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
@@ -335,14 +334,14 @@ Output lands in `runs/autonomous/<UTC timestamp>/`:
 <summary><b>Deterministic pipeline, no LLM calls</b></summary>
 
 Reruns the converged recipe across three seeds plus a target-only expert and blends them.
-Use this to verify the pipeline without spending tokens.
+This verifies the pipeline without spending tokens.
 
 ```bash
 make history-pipeline
 ```
 
 Writes to a timestamped directory under `runs/history-pipeline/`, with the same
-per-iteration JSON records and a checked submission. The blended validation primary is
+per-iteration JSON records and a row-aligned submission. The blended validation primary is
 0.6274, slightly below the single best autonomous checkpoint at 0.6299. The ensemble buys
 variance reduction, not score.
 
@@ -363,9 +362,9 @@ make bonus-1k-lgbm  # KuaiRand-1K bonus benchmark
 
 > [!IMPORTANT]
 > `runs/` is untracked by Git, so a fresh clone contains no logs or model artifacts. The
-> commands above regenerate them, and the run directory they print is the complete record
-> of a run: one JSON file per iteration, a manifest, the winning source, and the
-> submission.
+> commands above regenerate them. For an autonomous run, the printed directory contains
+> the complete record: one JSON file per iteration, a manifest, the winning source, and
+> the submission.
 
 ## Repository layout
 
@@ -387,8 +386,8 @@ kopibara-agent/
 
 ## Candidate library
 
-The agent edits one script, but the repository carries several so that a run can be
-re-seeded from a different modelling family without rewriting the controller.
+The autonomous controller edits `history_lgbm.py`; the repository also carries several
+modelling families for comparison without changes to the controller.
 
 | Script | Approach |
 | :--- | :--- |
@@ -401,32 +400,31 @@ re-seeded from a different modelling family without rewriting the controller.
 
 ## Limitations and next steps
 
-**The search is narrow by construction.** The planner may edit one file, and the run
-converged after four iterations. That is efficient, and it is also the main thing we would
-change: allowing edits to the feature-construction module alongside the training script
-would open the parts of the stack the agent currently cannot reach. The token denylist
-would need to grow with it.
+**The search is narrow by construction.** The planner edits one file, and the run
+converged after four iterations. Allowing edits to the feature-construction module
+alongside the training script would expose more of the stack. The token denylist would
+also need to grow with it.
 
 **Convergence fires early on a flat landscape.** ε = 0.002 over three iterations is the
 organizer's default, and around the 0.63 region the per-iteration deltas are close to that
-threshold. A run that explored a genuinely different branch, such as a deep model or a
-different label treatment, might be cut off before that branch had a chance to pay off. A
-minimum-iteration floor before the convergence window opens would be the cheap fix.
+threshold. A run exploring a genuinely different branch, such as a deep model or a
+different label treatment, might stop before that branch has a chance to pay off. A
+minimum-iteration floor before the convergence window opens would reduce this risk.
 
 **No off-policy evaluation.** KuaiRand ships randomized-exposure logs that support
-counterfactual evaluation, and we did not use them. They cannot enter training under the
-temporal-split rule, but they could inform a debiasing term or a validation-time sanity
-check on the ranker's exposure bias.
+counterfactual evaluation, but those logs are not used here. They cannot enter training
+under the temporal-split rule, but they could inform a debiasing term or a validation-time
+sanity check on the ranker's exposure bias.
 
 **Single-node search.** The tree is explored one candidate at a time. Candidates are
 independent subprocesses, so running several branches in parallel is a scheduling change
-rather than an architectural one, and it would let the agent afford wider exploration
-inside the same wall-clock budget.
+rather than an architectural one. Parallel execution would allow wider exploration inside
+the same wall-clock budget.
 
 **Deep models were explored but not selected.** `deepfm_mtl.py` and `din_ranker.py` run
-and are logged, but neither beat the gradient-boosted ranker on Pure at this scale. With
-more time we would give the multi-task tower a proper budget rather than treating it as
-one candidate among several.
+and are logged, but neither beat the gradient-boosted ranker on Pure at this scale. A
+larger budget for the multi-task tower would provide a fairer comparison than treating it
+as one candidate among several.
 
 ## Team
 
@@ -450,4 +448,4 @@ Released under the [MIT License](./LICENSE).
 - **[KuaiRand](https://kuairand.com)** (Kuaishou) for releasing a short-video dataset with
   randomized exposure and twelve feedback signals.
 - **[LightGBM](https://github.com/microsoft/LightGBM)** for the ranking implementation
-  every winning candidate is built on.
+  used by the winning candidate.
