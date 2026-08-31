@@ -18,7 +18,7 @@ export interface RunDetail {
   readonly outputTokens: number;
   readonly manualInterventions: number;
   readonly hiddenTestAccess: boolean;
-  readonly submissionRows: number;
+  readonly submissionPath: string | null;
 }
 
 export type ExperimentStatus = 'seed' | 'accepted' | 'rejected';
@@ -30,10 +30,6 @@ export interface Experiment {
   readonly hypothesis: string;
   readonly status: ExperimentStatus;
   readonly score: ScoreMetrics;
-  readonly seconds: number;
-  readonly inputTokens: number;
-  readonly outputTokens: number;
-  readonly recoveryEvents: readonly string[];
 }
 
 export interface MetricPoint {
@@ -60,4 +56,37 @@ export interface RunSnapshot {
   readonly experiments: readonly Experiment[];
   readonly metrics: readonly MetricPoint[];
   readonly events: readonly RunEvent[];
+}
+
+export interface ManifestMetrics {
+  readonly gauc: number;
+  readonly ndcg_at_5: number;
+  readonly primary: number;
+}
+
+export interface ManifestNode {
+  readonly node_id: string;
+  readonly parent_id: string | null;
+  readonly status: string;
+  readonly title: string;
+  readonly hypothesis: string;
+  readonly validation: ManifestMetrics | null;
+}
+
+export interface RunManifest {
+  readonly status: string;
+  readonly stopped_reason: string;
+  readonly run_id?: string;
+  readonly benchmark?: string;
+  readonly baseline_validation: ManifestMetrics;
+  readonly best_validation: ManifestMetrics | null;
+  readonly best_node_id: string;
+  readonly iterations: number;
+  readonly wall_clock_seconds: number;
+  readonly total_input_tokens: number;
+  readonly total_output_tokens: number;
+  readonly manual_interventions: number;
+  readonly hidden_test_access: boolean;
+  readonly nodes: readonly ManifestNode[];
+  readonly final_submission: string | null;
 }

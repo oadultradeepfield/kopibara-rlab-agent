@@ -6,7 +6,7 @@ import pytest
 
 from kopibara_agent.models import CodeEdit, Metrics
 from kopibara_agent.planner import apply_code_edits, parse_plan
-from kopibara_agent.research_agent import has_converged
+from kopibara_agent.research_agent import has_converged, write_dashboard_run
 from kopibara_agent.runner import parse_candidate_metrics, parse_metrics
 
 
@@ -61,3 +61,10 @@ def test_apply_code_edits_rejects_ambiguous_match() -> None:
 def test_convergence_requires_three_small_changes() -> None:
     assert not has_converged([0.6015, 0.6020, 0.6025])
     assert has_converged([0.6015, 0.6020, 0.6025, 0.6030])
+
+
+def test_write_dashboard_run_publishes_the_manifest(tmp_path: Path) -> None:
+    path = write_dashboard_run(tmp_path, {"status": "completed"})
+
+    assert path == tmp_path / "frontend" / "public" / "run.json"
+    assert '"status": "completed"' in path.read_text(encoding="utf-8")

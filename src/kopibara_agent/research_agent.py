@@ -46,6 +46,8 @@ from kopibara_agent.runner import (
     run_command,
 )
 
+DASHBOARD_RUN_PATH = Path("frontend") / "public" / "run.json"
+
 
 def has_converged(
     scores: Sequence[float],
@@ -77,10 +79,18 @@ def select_parent(nodes: Mapping[str, Node]) -> Node:
 
 def write_log(path: Path, record: Mapping[str, object]) -> None:
     """Write one iteration record."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps(record, indent=2, default=str) + "\n",
         encoding="utf-8",
     )
+
+
+def write_dashboard_run(root: Path, manifest: Mapping[str, object]) -> Path:
+    """Publish the latest run manifest for the local frontend."""
+    path = root / DASHBOARD_RUN_PATH
+    write_log(path, manifest)
+    return path
 
 
 def attempt_candidate(
@@ -386,6 +396,8 @@ def build_manifest(
     state: SearchState,
     *,
     root: Path,
+    run_id: str,
+    benchmark: str,
     stopped_reason: str,
     attempted: int,
     max_iterations: int,
@@ -398,6 +410,8 @@ def build_manifest(
     return {
         "status": "completed",
         "stopped_reason": stopped_reason,
+        "run_id": run_id,
+        "benchmark": benchmark,
         "baseline_validation": asdict(state.baseline),
         "runtime_baseline_validation": asdict(state.runtime_baseline),
         "best_validation": asdict(state.best.metrics) if state.best.metrics else None,
@@ -501,20 +515,21 @@ def run_agent(
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
         final_submission = None
         stopped_reason = f"submission_failure: {error}"
-    write_log(
-        run_directory / "manifest.json",
-        build_manifest(
-            state,
-            root=root,
-            stopped_reason=stopped_reason,
-            attempted=attempted,
-            max_iterations=max_iterations,
-            elapsed_seconds=time.monotonic() - started,
-            input_tokens=input_tokens,
-            output_tokens=output_tokens,
-            final_submission=final_submission,
-        ),
+    manifest = build_manifest(
+        state,
+        root=root,
+        run_id=run_directory.name,
+        benchmark=data_directory.parent.name,
+        stopped_reason=stopped_reason,
+        attempted=attempted,
+        max_iterations=max_iterations,
+        elapsed_seconds=time.monotonic() - started,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        final_submission=final_submission,
     )
+    write_log(run_directory / "manifest.json", manifest)
+    write_dashboard_run(root, manifest)
     return AgentSummary(
         best_validation=state.best.metrics or state.baseline,
         iterations=attempted,

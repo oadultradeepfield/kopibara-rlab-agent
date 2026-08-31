@@ -65,7 +65,9 @@ export function Overview({ detail }: OverviewProps): ReactElement {
           <span>Runtime: {formatDuration(detail.wallClockSeconds)}</span>
           <span>LLM tokens: {totalTokens.toLocaleString()}</span>
           <span>Hidden test access: {detail.hiddenTestAccess ? 'Yes' : 'No'}</span>
-          <span>Submission rows checked: {detail.submissionRows.toLocaleString()}</span>
+          <span>
+            Submission: {detail.submissionPath === null ? 'Not saved' : 'Saved'}
+          </span>
         </div>
       </div>
     </section>
