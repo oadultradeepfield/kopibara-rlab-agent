@@ -1,12 +1,11 @@
 #import "arkheion-sans.typ": arkheion
 
 #set page(
-  background: place(
-    center,
-    rotate(45deg)[
-      #text(size: 28pt, weight: "bold", fill: luma(230))[TikTok TechJam 2026]
-    ],
-  ),
+  background: align(center + horizon)[
+    #rotate(45deg)[
+      #text(size: 42pt, weight: "bold", fill: luma(235))[TikTok TechJam 2026]
+    ]
+  ],
 )
 #show: arkheion.with(
   title: "Kopibara RLab Agent: An autonomous ML researcher that searches over executable hypotheses, one measured code change at a time.",
@@ -131,7 +130,7 @@ intermediate `max_bin=767` became the best node at 0.7498.
 
 #v(0.9em)
 #figure(
-  box(height: 200pt, clip: true)[
+  block(height: 215pt, clip: true)[
     #image("score-chart.jpg", width: 100%)
   ],
   caption: [1K validation trajectory. The lines show primary, GAUC, nDCG#text("@")5, and the measured reference.]
@@ -154,9 +153,9 @@ in each JSON iteration log. “Rejected” means the candidate ran but did not e
 current best. “Failed” means both the original candidate and its repair timed out.
 
 #figure(
-  text(size: 7.5pt)[
+  text(size: 8.5pt)[
     #table(
-      columns: (0.35fr, 3.25fr, 0.7fr, 0.75fr),
+      columns: (0.35fr, 2.85fr, 0.7fr, 0.8fr),
       stroke: 0.4pt + luma(215),
       inset: (x: 3pt, y: 1.5pt),
       align: (left, left, right, left),
