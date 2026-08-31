@@ -31,6 +31,7 @@ NUM_LEAVES = 31
 MIN_DATA_IN_LEAF = 50
 SEED = 0
 HISTORY_SCOPE_COUNT = 4
+MAX_RANKING_GROUP_SIZE = 10_000
 
 
 def build_categorical_features(row: RichInteraction) -> list[str]:
@@ -198,11 +199,19 @@ def encode_features(
 def group_rows(
     fields: np.ndarray, labels: np.ndarray, users: list[str]
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Sort rows by user and return the ordering and group sizes."""
+    """Sort rows by user and split oversized queries for LightGBM."""
     order = np.argsort(np.asarray(users), kind="stable")
     grouped_users = np.asarray(users, dtype=str)[order]
     _, starts, counts = np.unique(grouped_users, return_index=True, return_counts=True)
-    return fields[order], labels[order], order, counts[np.argsort(starts)]
+    ordered_counts = counts[np.argsort(starts)]
+    group_sizes: list[int] = []
+    for count in ordered_counts:
+        remaining = int(count)
+        while remaining > MAX_RANKING_GROUP_SIZE:
+            group_sizes.append(MAX_RANKING_GROUP_SIZE)
+            remaining -= MAX_RANKING_GROUP_SIZE
+        group_sizes.append(remaining)
+    return fields[order], labels[order], order, np.asarray(group_sizes, dtype=np.int32)
 
 
 def run_history_model(
@@ -294,7 +303,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument(
         "--feedbacks",
-        default="long_view",
+        default="all",
         help="comma-separated feedback names for history features, or all",
     )
     parser.add_argument("--learning-rate", type=float, default=LEARNING_RATE)

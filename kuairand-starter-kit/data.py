@@ -9,16 +9,26 @@ SPLITS = {'train': (20220408, 20220421),
 # 5 个特征域。想加特征就往这里加 —— 这是学生最该动的地方之一。
 FIELDS = ['user_id', 'video_id', 'author_id', 'tab', 'dur_bucket']
 
+def _find_file(data_dir, prefix):
+    matches = [
+        name
+        for name in os.listdir(data_dir)
+        if name.startswith(prefix) and name.endswith('.csv')
+    ]
+    if len(matches) != 1:
+        raise ValueError(f'expected one {prefix} file, found {len(matches)}')
+    return os.path.join(data_dir, matches[0])
+
 def load(data_dir):
     """读日志 + 视频侧特征，返回按划分切好的 dict。"""
     vid2author = {}
-    with open(os.path.join(data_dir, 'video_features_basic_pure.csv')) as fh:
+    with open(_find_file(data_dir, 'video_features_basic_')) as fh:
         for r in csv.DictReader(fh):
             vid2author[r['video_id']] = r['author_id']
 
     rows = []
-    for f in ('log_standard_4_08_to_4_21_pure.csv', 'log_standard_4_22_to_5_08_pure.csv'):
-        with open(os.path.join(data_dir, f)) as fh:
+    for prefix in ('log_standard_4_08_to_4_21_', 'log_standard_4_22_to_5_08_'):
+        with open(_find_file(data_dir, prefix)) as fh:
             for r in csv.DictReader(fh):
                 rows.append((int(r['date']), r['user_id'], r['video_id'],
                              vid2author.get(r['video_id'], 'UNK'), r['tab'],
