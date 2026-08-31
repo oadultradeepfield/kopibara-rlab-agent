@@ -1,0 +1,88 @@
+[project]
+name = "kopibara-agent"
+version = "0.1.0"
+description = "Autonomous research agent for the KuaiRand hackathon."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "lightgbm>=4.0",
+    "numpy>=1.26",
+    "openai>=1.0.0",
+    "torch>=2.4",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.11",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+kopibara-agent = "kopibara_agent.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.10.0,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "RET",
+    "PTH",
+    "ANN",
+    "PL",
+    "RUF",
+]
+ignore = ["ANN401", "PLR0913"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN201", "PLR2004", "S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+disallow_any_explicit = true
+disallow_any_generics = true
+warn_unreachable = true
+warn_return_any = true
+no_implicit_reexport = true
+show_error_codes = true
+mypy_path = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "--strict-config --strict-markers --import-mode=importlib"
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.pyc
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Local benchmark data and downloaded archives.
+kuairand-starter-kit/KuaiRand-Pure/
+kuairand-starter-kit/KuaiRand-1K/
+kuairand-starter-kit/*.tar.gz
+
+# Generated model files, predictions, and run logs.
+runs/
+outputs/
+work/
