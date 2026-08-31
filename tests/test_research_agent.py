@@ -4,15 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from kopibara_agent.research_agent import (
-    CodeEdit,
-    Metrics,
-    apply_code_edits,
-    has_converged,
-    parse_candidate_metrics,
-    parse_metrics,
-    parse_plan,
-)
+from kopibara_agent.models import CodeEdit, Metrics
+from kopibara_agent.planner import apply_code_edits, parse_plan
+from kopibara_agent.research_agent import has_converged
+from kopibara_agent.runner import parse_candidate_metrics, parse_metrics
 
 
 def test_parse_metrics_uses_validation_line() -> None:
