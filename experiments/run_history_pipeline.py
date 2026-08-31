@@ -16,6 +16,9 @@ from ensemble_submission import write_submission
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 STARTER_DIRECTORY = PROJECT_ROOT / "kuairand-starter-kit"
 SEEDS = (0, 1, 2)
+BASE_EXPERT_WEIGHT = 0.4
+TARGET_EXPERT_WEIGHT = 0.6
+TARGET_EXPERT_FEEDBACKS = "long_view"
 METRIC_PATTERN = re.compile(
     r"valid GAUC (?P<gauc>[0-9.]+) \| nDCG@5 (?P<ndcg>[0-9.]+) \| "
     r"primary (?P<primary>[0-9.]+)"
@@ -39,6 +42,7 @@ def run_seed(
     data_directory: Path,
     output_directory: Path,
     seed: int,
+    feedbacks: str = "all",
 ) -> tuple[dict[str, float], float, tuple[str, ...], str]:
     """Run one historical ranker seed without shell expansion."""
     command = (
@@ -49,7 +53,7 @@ def run_seed(
         "--objective",
         "lambdarank",
         "--feedbacks",
-        "all",
+        feedbacks,
         "--seed",
         str(seed),
         "--output-dir",
@@ -110,19 +114,54 @@ def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]
         )
         seed_records.append(record)
 
+    target_output = run_directory / "target-only"
+    target_metrics, target_seconds, target_command, target_output_text = run_seed(
+        data_directory,
+        target_output,
+        0,
+        TARGET_EXPERT_FEEDBACKS,
+    )
+    test_scores.append(target_output / "test_scores.npy")
+    valid_scores.append(target_output / "valid_scores.npy")
+    target_record = {
+        "iteration": len(SEEDS) + 1,
+        "status": "kept",
+        "hypothesis": (
+            "A long-view-only history expert should preserve the scored target's "
+            "signal and provide complementary rankings to the all-feedback model."
+        ),
+        "code_diff": "experiments/history_lgbm.py selects --feedbacks long_view.",
+        "validation": target_metrics,
+        "seconds": target_seconds,
+        "command": list(target_command),
+        "error_recovery": [],
+        "manual_interventions": 0,
+        "hidden_test_access": False,
+        "stdout_tail": target_output_text[-2000:],
+    }
+    (run_directory / f"{len(SEEDS) + 1:03d}_target-only.json").write_text(
+        json.dumps(target_record, indent=2) + "\n", encoding="utf-8"
+    )
+    seed_records.append(target_record)
+
     submission_path = run_directory / "submission.csv"
-    write_submission(data_directory, test_scores, submission_path, valid_scores)
+    weights = (BASE_EXPERT_WEIGHT / len(SEEDS),) * len(SEEDS) + (TARGET_EXPERT_WEIGHT,)
+    write_submission(
+        data_directory, test_scores, submission_path, valid_scores, weights
+    )
     ensemble_metrics = json.loads(
         (run_directory / "metrics.json").read_text(encoding="utf-8")
     )["valid"]
     ensemble_record = {
-        "iteration": len(SEEDS) + 1,
+        "iteration": len(SEEDS) + 2,
         "status": "kept",
         "hypothesis": (
-            "Seed averaging should reduce model variance without changing row order."
+            "A 40/60 blend of the all-feedback ensemble and long-view-only expert "
+            "should retain complementary ranking signal."
         ),
         "code_diff": (
-            "experiments/ensemble_submission.py standardizes and averages scores."
+            "experiments/ensemble_submission.py standardizes and applies weighted "
+            "score blending."
         ),
         "validation": ensemble_metrics,
         "seconds": time.monotonic() - started,
@@ -131,7 +170,7 @@ def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]
         "manual_interventions": 0,
         "hidden_test_access": False,
     }
-    (run_directory / "004_ensemble.json").write_text(
+    (run_directory / f"{len(SEEDS) + 2:03d}_ensemble.json").write_text(
         json.dumps(ensemble_record, indent=2) + "\n", encoding="utf-8"
     )
     manifest = {
@@ -143,7 +182,7 @@ def run_pipeline(data_directory: Path, run_directory: Path) -> dict[str, object]
             "primary": 0.6016,
         },
         "best_validation": ensemble_metrics,
-        "iterations": len(SEEDS) + 1,
+        "iterations": len(SEEDS) + 2,
         "wall_clock_seconds": time.monotonic() - started,
         "total_input_tokens": 0,
         "total_output_tokens": 0,
