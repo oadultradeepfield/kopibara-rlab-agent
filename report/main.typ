@@ -128,7 +128,7 @@ intermediate resolution of 767 became the best node at 0.7498.
 
 #v(0.9em)
 #figure(
-  block(height: 215pt, clip: true)[
+  block(height: 184pt, clip: true)[
     #image("score-chart.jpg", width: 100%)
   ],
   caption: [1K validation trajectory. The lines show primary, GAUC, nDCG#text("@")5, and the measured reference.]
