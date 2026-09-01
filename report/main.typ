@@ -222,7 +222,7 @@ required manual intervention or used hidden-test labels.
     [KuaiRand-Pure], [20260831T111545Z], [3], [5m 5s], [12,901], [0], [Converged],
     [KuaiRand-1K], [20260831T124656Z], [21], [6h 7m], [115,212], [0], [Wall-clock cap],
   ),
-  caption: [Resource and autonomy accounting from the final manifests.]
+  caption: [Resource and autonomy accounting for the two runs.]
 ) <accounting>
 
 #v(0.9em)
